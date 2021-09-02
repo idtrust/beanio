@@ -9,6 +9,7 @@ import org.junit.*;
 /**
  * Unit test cases for annotated groups.
  */
+@Ignore
 class AnnotatedGroupTest extends AbstractParserTest {
     
     @Test
