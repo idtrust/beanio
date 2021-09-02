@@ -1,0 +1,19 @@
+<beanio xmlns="http://www.beanio.org/2012/03"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd">
+  <stream name="xls-test" format="xls">
+    <parser>
+      <property name="sheetName" value="sheet1"/>
+    </parser>
+    <record name="header" minOccurs="0" maxOccurs="1" class="map">
+      <field name="header1" at="0" literal="NOME"/>
+      <field name="header2" at="1" literal="IDADE"/>
+      <field name="header3" at="2" literal="SALARIO"/>
+    </record>
+    <record name="employee" minOccurs="0" maxOccurs="unbounded" class="map">
+      <field name="name" length="10" at="0"/>
+      <field name="age" length="2" type="Integer" at="1"/>
+      <field name="income" length="13" at="2"/>
+    </record>
+  </stream>
+</beanio>

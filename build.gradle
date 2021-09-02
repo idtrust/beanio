@@ -28,8 +28,8 @@ plugins {
     id 'jacoco'
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
@@ -53,6 +53,7 @@ repositories {
 }
 
 dependencies {
+    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.14'
     testRuntimeOnly group: 'commons-logging', name: 'commons-logging', version: '1.2'
