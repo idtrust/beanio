@@ -35,6 +35,21 @@ ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 repositories {
     mavenCentral()
+    maven {
+        url "s3://repo.idtrust.com.br/releases"
+        authentication {
+           awsIm(AwsImAuthentication)
+        }
+    }
+    maven {
+        url "s3://repo.idtrust.com.br/snapshots"
+        authentication {
+           awsIm(AwsImAuthentication)
+        }
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
 }
 
 dependencies {
@@ -75,7 +90,7 @@ javadoc {
     options.docTitle = "<h2>BeanIO 3.0 API</h2>"
     options.footer = "<i>Copyright &copy; 2010-2021 Kevin Seim and BeanIO contributors</i>"
     options.links = [
-        "http://download.oracle.com/javase/7/docs/api/"
+        "https://docs.oracle.com/en/java/javase/11/docs/api/"
     ]
 }
 
@@ -191,13 +206,11 @@ signing {
 publishing {
     repositories {
         maven {
-            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            def releaseRepo = "s3://repo.idtrust.com.br/releases"
+            def snapshotRepo = "s3://repo.idtrust.com.br/snapshots"
             url = version.endsWith('SNAPSHOT') ? snapshotRepo : releaseRepo
-
-            credentials {
-                username = project.hasProperty('sonatypeUsername') ? sonatypeUsername : "Unknown user"
-                password = project.hasProperty('sonatypePassword') ? sonatypePassword : "Unknown password"
+            authentication {
+                awsIm(AwsImAuthentication)
             }
         }
     }
@@ -241,13 +254,5 @@ jacocoTestReport {
         xml.enabled true
         csv.enabled false
         html.enabled false
-    }
-}
-
-sonarqube {
-    properties {
-        property "sonar.projectKey", "beanio"
-        property "sonar.organization", "beanio"
-        property "sonar.host.url", "https://sonarcloud.io"
     }
 }
