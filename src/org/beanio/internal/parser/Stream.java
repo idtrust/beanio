@@ -15,11 +15,21 @@
  */
 package org.beanio.internal.parser;
 
-import java.io.*;
-import java.util.*;
-
-import org.beanio.*;
-import org.beanio.stream.*;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
+import org.beanio.BeanReader;
+import org.beanio.BeanWriter;
+import org.beanio.BeanioInput;
+import org.beanio.BeanioOutput;
+import org.beanio.Marshaller;
+import org.beanio.Unmarshaller;
+import org.beanio.stream.RecordMarshaller;
+import org.beanio.stream.RecordReader;
+import org.beanio.stream.RecordUnmarshaller;
 
 /**
  * 
@@ -36,6 +46,7 @@ public class Stream {
     public static final int WRITE_ONLY_MODE = 2;
     
     private int mode;
+    private String streamFormat;
     private StreamFormat format;
     private Selector layout;
     private MessageFactory messageFactory;
@@ -53,7 +64,15 @@ public class Stream {
         }
         this.format = format;
     }
-    
+
+    public String getStreamFormat() {
+        return streamFormat;
+    }
+
+    public void setStreamFormat(String streamFormat) {
+        this.streamFormat = streamFormat;
+    }
+
     @SuppressWarnings("unchecked")
     public void init() {
         locals = (Set<ParserLocal<?>>) (Set<?>) new HashSet<ParserLocal<Object>>();
@@ -77,21 +96,30 @@ public class Stream {
      * @return the new {@link BeanReader}
      */
     public BeanReader createBeanReader(Reader in, Locale locale) {
-        if (in == null) {
-            throw new NullPointerException("null reader");
-        }
-        
-        UnmarshallingContext context = format.createUnmarshallingContext();
-        initContext(context);
-        context.setMessageFactory(messageFactory);
-        context.setLocale(locale);
-        context.setRecordReader(format.createRecordReader(in));
-        
+        Objects.requireNonNull(in,"null reader");
+        UnmarshallingContext context = createUnmarshallingContext(locale, format.createRecordReader(in));
         BeanReaderImpl reader = new BeanReaderImpl(context, layout);
         reader.setIgnoreUnidentifiedRecords(ignoreUnidentifiedRecords);
         return reader;
     }
-    
+
+    public BeanReader createBeanReader(BeanioInput in, Locale locale) {
+        Objects.requireNonNull(in,"null reader");
+        UnmarshallingContext context = createUnmarshallingContext(locale, format.createRecordReader(in));
+        BeanReaderImpl reader = new BeanReaderImpl(context, layout);
+        reader.setIgnoreUnidentifiedRecords(ignoreUnidentifiedRecords);
+        return reader;
+    }
+
+    private UnmarshallingContext createUnmarshallingContext(Locale locale, RecordReader recordReader) {
+        UnmarshallingContext context = format.createUnmarshallingContext();
+        initContext(context);
+        context.setMessageFactory(messageFactory);
+        context.setLocale(locale);
+        context.setRecordReader(recordReader);
+        return context;
+    }
+
     /**
      * Creates a new {@link Unmarshaller}.
      * @param locale the {@link Locale} to use for rendering error messages
@@ -128,6 +156,16 @@ public class Stream {
 
         BeanWriterImpl writer = new BeanWriterImpl(context, layout);
         return writer;
+    }
+
+    public BeanWriter createBeanWriter(BeanioOutput out) {
+        Objects.requireNonNull(out,"null writer");
+
+        MarshallingContext context = format.createMarshallingContext(true);
+        initContext(context);
+        context.setRecordWriter(format.createRecordWriter(out));
+
+        return new BeanWriterImpl(context, layout);
     }
     
     /**

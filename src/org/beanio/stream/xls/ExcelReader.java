@@ -1,7 +1,7 @@
 package org.beanio.stream.xls;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
@@ -15,23 +15,22 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.beanio.stream.RecordIOException;
 import org.beanio.stream.RecordReader;
-import org.beanio.stream.xls.util.RawInputStreamReaderAdapter;
 
 public class ExcelReader implements RecordReader {
 
   private transient int lineNumber;
-  private final Reader reader;
+  private final InputStream inputStream;
   private final ExcelParserConfiguration config;
   private final Sheet sheet;
 
-  public ExcelReader(Reader in, ExcelParserConfiguration config) throws IOException {
-    this.reader = in;
+  public ExcelReader(InputStream in, ExcelParserConfiguration config) throws IOException {
+    this.inputStream = in;
     this.config = config;
     this.sheet = getSheet();
   }
 
   private Sheet getSheet() throws IOException {
-    XSSFWorkbook wb = new XSSFWorkbook(((RawInputStreamReaderAdapter) reader).getInputStream());
+    XSSFWorkbook wb = new XSSFWorkbook(inputStream);
     Sheet sheet = getSheetFromWorkbook(wb);
     Objects.requireNonNull(
         sheet, MessageFormat.format("sheet [%s] not found", config.getSheetName()));
@@ -68,7 +67,7 @@ public class ExcelReader implements RecordReader {
 
   @Override
   public void close() throws IOException {
-    this.reader.close();
+    this.inputStream.close();
   }
 
   @Override

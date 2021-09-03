@@ -15,21 +15,71 @@
  */
 package org.beanio.internal.compiler;
 
-import java.beans.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.regex.PatternSyntaxException;
-
 import org.beanio.BeanIOConfigurationException;
-import org.beanio.internal.compiler.accessor.*;
-import org.beanio.internal.config.*;
-import org.beanio.internal.parser.*;
+import org.beanio.internal.compiler.accessor.ReflectionAccessorFactory;
+import org.beanio.internal.config.BeanConfig;
+import org.beanio.internal.config.ComponentConfig;
+import org.beanio.internal.config.ConstantConfig;
+import org.beanio.internal.config.FieldConfig;
+import org.beanio.internal.config.GroupConfig;
+import org.beanio.internal.config.PropertyConfig;
+import org.beanio.internal.config.RecordConfig;
+import org.beanio.internal.config.SegmentConfig;
+import org.beanio.internal.config.SimplePropertyConfig;
+import org.beanio.internal.config.StreamConfig;
+import org.beanio.internal.parser.Aggregation;
+import org.beanio.internal.parser.ArrayParser;
+import org.beanio.internal.parser.Bean;
+import org.beanio.internal.parser.CollectionBean;
+import org.beanio.internal.parser.CollectionParser;
+import org.beanio.internal.parser.Component;
+import org.beanio.internal.parser.Constant;
 import org.beanio.internal.parser.Field;
-import org.beanio.internal.parser.accessor.*;
+import org.beanio.internal.parser.FieldFormat;
+import org.beanio.internal.parser.Group;
+import org.beanio.internal.parser.Iteration;
+import org.beanio.internal.parser.MapParser;
+import org.beanio.internal.parser.Property;
+import org.beanio.internal.parser.Record;
+import org.beanio.internal.parser.RecordAggregation;
+import org.beanio.internal.parser.RecordArray;
+import org.beanio.internal.parser.RecordCollection;
+import org.beanio.internal.parser.RecordFormat;
+import org.beanio.internal.parser.RecordMap;
+import org.beanio.internal.parser.Segment;
+import org.beanio.internal.parser.Selector;
+import org.beanio.internal.parser.Stream;
+import org.beanio.internal.parser.StreamFormat;
+import org.beanio.internal.parser.accessor.MapAccessor;
 import org.beanio.internal.parser.message.ResourceBundleMessageFactory;
-import org.beanio.internal.util.*;
+import org.beanio.internal.util.BeanUtil;
+import org.beanio.internal.util.Settings;
+import org.beanio.internal.util.TypeHandlerFactory;
+import org.beanio.internal.util.TypeUtil;
 import org.beanio.stream.RecordParserFactory;
-import org.beanio.types.*;
+import org.beanio.types.ConfigurableTypeHandler;
+import org.beanio.types.TypeConversionException;
+import org.beanio.types.TypeHandler;
 
 /**
  * Base {@link ParserFactory} implementation.
@@ -53,7 +103,7 @@ public abstract class ParserFactorySupport extends ProcessorSupport implements P
         Settings.getInstance().getProperty(Settings.ALLOW_PROTECTED_PROPERTY_ACCESS));
     
     private static final Component unbound = new Component() {{ setName("unbound"); }};
-    
+
     private Stream stream;
     private String streamFormat;
     private boolean readEnabled = true;
@@ -175,6 +225,10 @@ public abstract class ParserFactorySupport extends ProcessorSupport implements P
         
         propertyStack.addLast(component);
         //System.out.println("Property: " + propertyStack);
+    }
+
+    public String getStreamFormat() {
+        return streamFormat;
     }
 
     /**
@@ -310,6 +364,7 @@ public abstract class ParserFactorySupport extends ProcessorSupport implements P
         StreamFormat format = createStreamFormat(config);
         
         stream = new Stream(format);
+        stream.setStreamFormat(streamFormat);
         
         // set the stream mode, defaults to read/write, the stream mode may be used
         // to enforce or relax validation rules specific to marshalling or unmarshalling

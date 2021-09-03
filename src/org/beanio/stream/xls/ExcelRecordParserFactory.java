@@ -1,6 +1,8 @@
 package org.beanio.stream.xls;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Properties;
@@ -32,6 +34,10 @@ public class ExcelRecordParserFactory extends ExcelParserConfiguration
 
   @Override
   public RecordReader createReader(Reader in) throws IllegalArgumentException {
+    throw new IllegalArgumentException("reader is not permitted on this format");
+  }
+
+  public RecordReader createReader(InputStream in) throws IllegalArgumentException {
     try {
       return new ExcelReader(in, this);
     } catch (IOException e) {
@@ -41,6 +47,10 @@ public class ExcelRecordParserFactory extends ExcelParserConfiguration
 
   @Override
   public RecordWriter createWriter(Writer out) throws IllegalArgumentException {
+    throw new IllegalArgumentException("writer is not permitted on this format");
+  }
+
+  public RecordWriter createWriter(OutputStream out) throws IllegalArgumentException {
     return new ExcelWriter(new ExcelWriterContext(out), this);
   }
 

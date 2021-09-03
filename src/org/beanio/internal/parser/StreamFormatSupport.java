@@ -1,12 +1,12 @@
 /*
  * Copyright 2011-2012 Kevin Seim
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,13 +15,19 @@
  */
 package org.beanio.internal.parser;
 
-import java.io.*;
-
-import org.beanio.stream.*;
+import java.io.Reader;
+import java.io.Writer;
+import org.beanio.BeanioInput;
+import org.beanio.BeanioOutput;
+import org.beanio.stream.RecordMarshaller;
+import org.beanio.stream.RecordParserFactory;
+import org.beanio.stream.RecordReader;
+import org.beanio.stream.RecordUnmarshaller;
+import org.beanio.stream.RecordWriter;
 
 /**
  * Base class for {@link StreamFormat} implementations.
- * 
+ *
  * @author Kevin Seim
  * @since 2.0
  */
@@ -37,7 +43,7 @@ public abstract class StreamFormatSupport implements StreamFormat {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.beanio.internal.parser.StreamFormat#getName()
@@ -58,6 +64,11 @@ public abstract class StreamFormatSupport implements StreamFormat {
         return recordParserFactory.createReader(in);
     }
 
+    @Override
+    public RecordReader createRecordReader(BeanioInput in) {
+        return recordParserFactory.createReader(in.getReader());
+    }
+
     /**
      * Creates a new <code>RecordWriter</code> for writing to the given output stream.
      * This method delegates to the configured record parser factory.
@@ -68,7 +79,12 @@ public abstract class StreamFormatSupport implements StreamFormat {
     public RecordWriter createRecordWriter(Writer out) {
         return recordParserFactory.createWriter(out);
     }
-    
+
+    @Override
+    public RecordWriter createRecordWriter(BeanioOutput out) {
+        return recordParserFactory.createWriter(out.getWriter());
+    }
+
     /*
      * (non-Javadoc)
      * @see org.beanio.internal.parser.StreamFormat#createRecordMarshaller()
@@ -94,7 +110,7 @@ public abstract class StreamFormatSupport implements StreamFormat {
     public void setRecordParserFactory(RecordParserFactory recordParserFactory) {
         this.recordParserFactory = recordParserFactory;
     }
-    
+
     /**
      * Returns the {@link RecordParserFactory} used by this stream.
      * @return the {@link RecordParserFactory}

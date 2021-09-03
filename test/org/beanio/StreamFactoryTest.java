@@ -1,12 +1,12 @@
 /*
  * Copyright 2010-2011 Kevin Seim
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,54 +15,61 @@
  */
 package org.beanio;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
-import java.io.*;
-import java.util.HashMap;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Locale;
-
 import org.beanio.internal.DefaultStreamFactory;
 import org.junit.Test;
 
 /**
  * JUnit test cases for testing the <tt>StreamFactory</tt> and its default
  * implementation.
- * 
+ *
  * @author Kevin Seim
  * @since 1.0
  */
 public class StreamFactoryTest {
-    
+
     @Test
     public void testLoadMappingFile() throws Exception {
         StreamFactory factory = StreamFactory.newInstance();
-        
+
         String filename = "test/org/beanio/mapping.xml";
         File file = new File(filename);
         factory.load(file);
         factory.load(filename);
         factory.loadResource("org/beanio/mapping.xml");
     }
-    
+
     @Test(expected=BeanIOException.class)
     public void testMappingFileNotFound() {
         StreamFactory factory = StreamFactory.newInstance();
         factory.load("/org/beanio/mapping-notfound.xml");
     }
-    
+
     @Test
     public void testInvalidStreamName() throws IOException {
         StreamFactory factory = StreamFactory.newInstance();
-        
+
         // assert we get the default instance
         assertEquals(factory.getClass(), org.beanio.internal.DefaultStreamFactory.class);
-        
+
         // load the mapping file
         factory.load(getClass().getResourceAsStream("mapping.xml"));
-        
+
         // remove 'stream2'
         assertNotNull(((DefaultStreamFactory)factory).removeStream("stream2"));
-        
+
         try {
             factory.createReader("stream2", new StringReader(""));
             fail("expected IllegalArgumentException");
@@ -79,14 +86,29 @@ public class StreamFactoryTest {
         }
         catch (IllegalArgumentException ex) { }
     }
-    
+
     @Test
     public void testCreateReaderForFile() {
         StreamFactory factory = StreamFactory.newInstance();
         factory.loadResource("org/beanio/mapping.xml");
-        
+
         File file = new File("test/org/beanio/file.txt");
         try (BeanReader in = factory.createReader("stream1", file)) {
+            while (in.read() != null);
+        }
+    }
+
+    @Test
+    public void testCreateReaderForFileWithBeanioInput() throws FileNotFoundException {
+        StreamFactory factory = StreamFactory.newInstance();
+        factory.loadResource("org/beanio/mapping.xml");
+
+        File file = new File("test/org/beanio/file.txt");
+        try (BeanReader in = factory.createReader("stream1", BeanioInput.ofReader(new FileReader(file)), Locale.getDefault())) {
+            while (in.read() != null);
+        }
+        try (BeanReader in = factory.createReader("stream1",
+            BeanioInput.ofInputStream(new FileInputStream(file)), Locale.getDefault())) {
             while (in.read() != null);
         }
     }
@@ -111,16 +133,30 @@ public class StreamFactoryTest {
         factory.load("/org/beanio/mapping.xml");
         factory.createReader("stream1", new File("test/org/beanio/filenotfound.txt"));
     }
-    
+
     @Test
     public void testCreateWriterForFile() throws IOException {
         StreamFactory factory = StreamFactory.newInstance();
         factory.loadResource("org/beanio/mapping.xml");
-        
+
         File file = File.createTempFile("temp", "txt");
         file.deleteOnExit();
-        
+
         BeanWriter out = factory.createWriter("stream1", file);
+        out.flush();
+        out.close();
+    }
+
+    @Test
+    public void testCreateWriterForFileWithBeanioOutput() throws IOException {
+        StreamFactory factory = StreamFactory.newInstance();
+        factory.loadResource("org/beanio/mapping.xml");
+
+        File file = File.createTempFile("temp", "txt");
+        file.deleteOnExit();
+
+        BeanWriter out = factory.createWriter("stream1",
+            BeanioOutput.ofOutputStream(new FileOutputStream(file)));
         out.flush();
         out.close();
     }
