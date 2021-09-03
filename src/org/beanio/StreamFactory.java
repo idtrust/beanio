@@ -115,8 +115,10 @@ public abstract class StreamFactory {
     public Unmarshaller createUnmarshaller(String name) throws IllegalArgumentException {
         return createUnmarshaller(name, null);
     }
-    
-    /**
+
+  public abstract BeanReader createReader(String name, BeanioInput in, Locale locale);
+
+  /**
      * Creates a new {@link Unmarshaller} for unmarshalling records.
      * @param name the name of the stream in the mapping file
      * @param locale the {@link Locale} used to format error messages, or null to use {@link Locale#getDefault()}
@@ -166,7 +168,9 @@ public abstract class StreamFactory {
     public abstract BeanWriter createWriter(String name, Writer out)
         throws IllegalArgumentException;
 
-    /**
+  public abstract BeanWriter createWriter(String name, BeanioOutput out);
+
+  /**
      * Creates a new {@link Marshaller} for marshalling bean objects.
      * @param name the name of the stream in the mapping file
      * @return the created {@link Marshaller}

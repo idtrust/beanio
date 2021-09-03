@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.beanio.BeanWriter;
+import org.beanio.BeanioOutput;
 import org.beanio.StreamFactory;
 import org.beanio.stream.xls.util.RawOutputStreamWriterAdapter;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class ExcelWriterTests {
     StreamFactory sf = StreamFactory.newInstance();
     sf.load(new File("test/org/beanio/stream/xls-config.xml"));
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    BeanWriter writer = sf.createWriter("xls-test", new RawOutputStreamWriterAdapter(baos));
+    BeanWriter writer = sf.createWriter("xls-test", BeanioOutput.ofOutputStream(baos));
     try {
       writer.write("header", new HashMap<String, Object>());
       writer.write("employee", createEmployee("ricardo", 33, 123.45));
