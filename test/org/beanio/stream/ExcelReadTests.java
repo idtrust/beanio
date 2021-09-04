@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import org.beanio.BeanReader;
+import org.beanio.BeanioInput;
 import org.beanio.StreamFactory;
 import org.beanio.builder.FieldBuilder;
 import org.beanio.builder.RecordBuilder;
@@ -20,7 +21,6 @@ import org.beanio.internal.parser.Stream;
 import org.beanio.internal.util.TypeHandlerFactory;
 import org.beanio.stream.xls.ExcelParserFactory;
 import org.beanio.stream.xls.ExcelRecordParserFactory;
-import org.beanio.stream.xls.util.RawInputStreamReaderAdapter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +31,8 @@ public class ExcelReadTests {
     StreamFactory sf = StreamFactory.newInstance();
     sf.load(new File("test/org/beanio/stream/xls-config.xml"));
     InputStream is = new FileInputStream("test/org/beanio/stream/test-reading.xlsx");
-    BeanReader reader = sf.createReader("xls-test", new RawInputStreamReaderAdapter(is));
+    BeanReader reader =
+        sf.createReader("xls-test", BeanioInput.ofInputStream(is), Locale.getDefault());
     assertReader(reader);
   }
 
@@ -59,7 +60,7 @@ public class ExcelReadTests {
     Stream s = f.createStream(sb.build());
     BeanReader reader =
         s.createBeanReader(
-            new RawInputStreamReaderAdapter(
+            BeanioInput.ofInputStream(
                 new FileInputStream("test/org/beanio/stream/test-reading.xlsx")),
             Locale.getDefault());
 
