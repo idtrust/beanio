@@ -52,7 +52,7 @@ public class ExcelReader implements RecordReader {
   public Object read() throws RecordIOException {
     Row row = sheet.getRow(lineNumber++);
     Object result = null;
-    if (!Objects.isNull(row)) {
+    if (!Objects.isNull(row) && row.getLastCellNum() >= 0) {
       final String[] cells = new String[row.getLastCellNum()];
       IntStream.range(0, cells.length)
           .forEach(
