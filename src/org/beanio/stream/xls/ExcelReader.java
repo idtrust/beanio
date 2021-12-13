@@ -11,7 +11,9 @@ import java.util.stream.IntStream;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.beanio.stream.RecordIOException;
 import org.beanio.stream.RecordReader;
@@ -57,9 +59,10 @@ public class ExcelReader implements RecordReader {
       IntStream.range(0, cells.length)
           .forEach(
               i -> {
-                Cell value = row.getCell(i);
+                Cell value = row.getCell(i, MissingCellPolicy.CREATE_NULL_AS_BLANK);
                 cells[i] = CONVERTERS.get(value.getCellTypeEnum()).apply(value);
-              });
+              }
+          );
       result = cells;
     }
     return result;
@@ -84,7 +87,8 @@ public class ExcelReader implements RecordReader {
 
   static {
     CONVERTERS = new ConcurrentHashMap<>();
-    CONVERTERS.put(CellType.NUMERIC, cell -> String.valueOf(cell.getNumericCellValue()));
+    CONVERTERS
+        .put(CellType.NUMERIC, cell -> NumberToTextConverter.toText(cell.getNumericCellValue()));
     CONVERTERS.put(CellType.BOOLEAN, cell -> String.valueOf(cell.getBooleanCellValue()));
     CONVERTERS.put(CellType.FORMULA, Cell::getStringCellValue);
     CONVERTERS.put(CellType.STRING, Cell::getStringCellValue);
