@@ -67,6 +67,44 @@ public class ExcelReadTests {
     assertReader(reader);
   }
 
+  @Test
+  public void shouldReadDoubleAsString() throws FileNotFoundException {
+    ExcelParserFactory f = new ExcelParserFactory();
+    f.setTypeHandlerFactory(new TypeHandlerFactory());
+    f.setClassLoader(getClass().getClassLoader());
+    StreamBuilder sb =
+        new StreamBuilder("xls-test", "xls")
+            .parser(new ExcelRecordParserFactory())
+            .addRecord(
+                new RecordBuilder("header", HashMap.class)
+                    .minOccurs(1)
+                    .maxOccurs(1)
+                    .addField(new FieldBuilder("header1").at(0).type(String.class))
+                    .addField(new FieldBuilder("header2").at(1).type(String.class))
+                    .addField(new FieldBuilder("header3").at(2).type(String.class)))
+            .addRecord(
+                new RecordBuilder("employee", HashMap.class)
+                    .addField(new FieldBuilder("name").at(0).type(String.class))
+                    .addField(new FieldBuilder("age").at(1).type(Integer.class))
+                    .addField(new FieldBuilder("income").at(2).type(String.class)));
+
+    Stream s = f.createStream(sb.build());
+    BeanReader reader =
+        s.createBeanReader(
+            BeanioInput.ofInputStream(
+                new FileInputStream("test/org/beanio/stream/test-reading-double.xlsx")),
+            Locale.getDefault());
+
+    reader.skip(1);
+
+    Map map = (Map) reader.read();
+    assertTrue(map instanceof Map);
+    assertEquals("ricardo", map.get("name"));
+    assertEquals(35, map.get("age"));
+    assertEquals("145000000000000000", map.get("income"));
+  }
+
+
   private void assertReader(BeanReader reader) {
     Object map = reader.read();
     assertTrue(map instanceof Map);
