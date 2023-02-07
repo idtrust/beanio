@@ -1,6 +1,8 @@
 package org.beanio.parser.annotation;
 
-import org.beanio.annotation.*;
+import org.beanio.annotation.Field;
+import org.beanio.annotation.Record;
+import org.beanio.annotation.Segment;
 
 @Record
 public class AnnotatedRoom {

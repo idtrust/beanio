@@ -1,9 +1,13 @@
 package org.beanio.parser.annotation;
 
-import java.util.*;
-
-import org.beanio.annotation.*;
-import org.beanio.builder.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import org.beanio.annotation.Field;
+import org.beanio.annotation.Fields;
+import org.beanio.annotation.Record;
+import org.beanio.builder.Align;
+import org.beanio.builder.XmlType;
 
 /**
  * Sample annotated object.

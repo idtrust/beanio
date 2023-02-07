@@ -24,7 +24,6 @@ plugins {
     id 'maven-publish'
     id 'signing'
 
-    id "org.sonarqube" version "3.1.1"
     id 'jacoco'
 }
 
@@ -197,12 +196,14 @@ artifacts {
     archives jar, sourcesJar, javadocJar
 }
 
+/*
 signing {
     afterEvaluate { project ->
         required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
         sign publishing.publications.mavenJava
     }
 }
+*/
 
 publishing {
     repositories {
@@ -216,7 +217,7 @@ publishing {
         }
     }
 
-    publications {
+  publications {
         mavenJava(MavenPublication) {
             pom {
                 groupId = project.group

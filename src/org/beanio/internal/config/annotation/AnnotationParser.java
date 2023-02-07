@@ -17,13 +17,26 @@ package org.beanio.internal.config.annotation;
 
 import java.beans.Introspector;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
-
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
 import org.beanio.BeanIOConfigurationException;
-import org.beanio.annotation.*;
+import org.beanio.annotation.AnnotationConstants;
 import org.beanio.annotation.Field;
-import org.beanio.internal.config.*;
+import org.beanio.annotation.Record;
+import org.beanio.annotation.Fields;
+import org.beanio.annotation.Group;
+import org.beanio.annotation.Segment;
+import org.beanio.internal.config.ComponentConfig;
+import org.beanio.internal.config.FieldConfig;
+import org.beanio.internal.config.GroupConfig;
+import org.beanio.internal.config.PropertyConfig;
+import org.beanio.internal.config.RecordConfig;
+import org.beanio.internal.config.SegmentConfig;
 import org.beanio.internal.util.TypeUtil;
 
 /**
