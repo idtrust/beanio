@@ -11,7 +11,7 @@ public class ExcelUnmarshallingContext extends UnmarshallingContext {
   }
 
   public String getValueAt(int index) {
-    return values[index];
+    return index < values.length ? values[index] : "";
   }
 
   @Override

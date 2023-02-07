@@ -13,7 +13,7 @@ public class ExcelRecordFormat implements RecordFormat {
 
   @Override
   public boolean matches(UnmarshallingContext context) {
-    return ((ExcelUnmarshallingContext) context).getTotalCells() == maxCells;
+    return ((ExcelUnmarshallingContext) context).getTotalCells() >= maxCells;
   }
 
   @Override
