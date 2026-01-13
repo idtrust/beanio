@@ -1,20 +1,22 @@
 package org.beanio.stream.xls;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
-import java.util.stream.IntStream;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.beanio.stream.RecordIOException;
 import org.beanio.stream.RecordReader;
 import org.beanio.stream.xls.util.ConverterUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Objects;
+import java.util.stream.IntStream;
+
 public class ExcelReader implements RecordReader {
 
+    private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
   private transient int lineNumber;
   private final InputStream inputStream;
@@ -60,7 +62,11 @@ public class ExcelReader implements RecordReader {
           .forEach(
               i -> {
                 Cell value = row.getCell(i, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                cells[i] = ConverterUtils.getConverterFor(value.getCellTypeEnum()).apply(value);
+                if (value.getCellTypeEnum().equals(CellType.NUMERIC) && DateUtil.isCellDateFormatted(value)) {
+                    cells[i] = FORMAT.format(value.getDateCellValue());
+                } else {
+                    cells[i] = ConverterUtils.getConverterFor(value.getCellTypeEnum()).apply(value);
+                }
               });
       result = cells;
     }

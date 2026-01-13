@@ -26,6 +26,16 @@ import org.junit.Test;
 
 public class ExcelReadTests {
 
+    @Test
+    public void shouldReadSuccessfully2() throws IOException {
+        System.setProperty("javax.xml.accessExternalSchema", "all");
+        StreamFactory sf = StreamFactory.newInstance();
+        sf.load(new File("/Users/ricardovanhoz/.mutant/downloads/inputMapInvoicesXLSProbank.xml"));
+        InputStream is = new FileInputStream("/tmp/RELFORNEC0311202507.xlsx");
+        BeanReader reader =
+                sf.createReader("xls-test", BeanioInput.ofInputStream(is), Locale.getDefault());
+        assertReader(reader);
+    }
   @Test
   public void shouldReadSuccessfully() throws IOException {
     StreamFactory sf = StreamFactory.newInstance();
